@@ -2,8 +2,9 @@ package main
 
 import "github.com/jfyne/live/page"
 
-func ClockFromComponent(c *page.Component) *ClockState {
-    return c.State.(*ClockState)
+templ ClockFromComponent(c *page.Component)  {
+    // silent error
+    @ClockView(c.State.(*ClockState))
 }
 
 templ ClockView(c *ClockState) {

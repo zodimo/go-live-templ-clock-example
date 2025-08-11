@@ -32,7 +32,11 @@ templ PageView(state *PageState,cmp *page.Component) {
         <div>
             <p>Try Europe/London or America/New_York</p>
             <input type="text" name="tz" />
-            <button type="submit">Submit</button>
+            <button type="submit" 
+            if state.ValidationError != "" {
+                disabled
+            }
+            >Submit</button>
             if state.ValidationError != "" {
                 <span>{ state.ValidationError }</span>
             }
@@ -42,7 +46,7 @@ templ PageView(state *PageState,cmp *page.Component) {
 
         <div>
             for _, clock := range state.Clocks {
-                 @ClockView(ClockFromComponent(clock))
+                 @ClockFromComponent(clock)
             }
         </div>
         
