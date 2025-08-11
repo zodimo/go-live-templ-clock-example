@@ -8,55 +8,6 @@ package main
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import (
-	"context"
-	"log/slog"
-	"net/http"
-	"time"
-
-	"github.com/zodimo/go-live-templ-clock-example/pkg/templrenderer"
-
-	"github.com/jfyne/live"
-)
-
-const (
-	tick = "tick"
-)
-
-type clock struct {
-	Time time.Time
-}
-
-func newClock(s *live.Socket) *clock {
-	c, ok := s.Assigns().(*clock)
-	if !ok {
-		return &clock{
-			Time: time.Now(),
-		}
-	}
-	return c
-}
-
-func (c clock) FormattedTime() string {
-	return c.Time.Format("15:04:05")
-}
-
-func mount(ctx context.Context, s *live.Socket) (any, error) {
-	// Take the socket data and tranform it into our view model if it is
-	// available.
-	c := newClock(s)
-
-	// If we are mouting the websocket connection, trigger the first tick
-	// event.
-	if s.Connected() {
-		go func() {
-			time.Sleep(1 * time.Second)
-			s.Self(ctx, tick, time.Now())
-		}()
-	}
-	return c, nil
-}
-
 func PageView(state PageState) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -85,7 +36,7 @@ func PageView(state PageState) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(state.Clock.FormattedTime())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `clock/main.templ`, Line: 56, Col: 44}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `clock/page.templ`, Line: 7, Col: 44}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
@@ -105,47 +56,6 @@ func PageView(state PageState) templ.Component {
 		}
 		return nil
 	})
-}
-
-type PageState struct {
-	Clock *clock
-}
-
-func LiveTempl(rc *live.RenderContext) templ.Component {
-	state := PageState{
-		Clock: newClock(rc.Socket),
-	}
-	return PageView(state)
-}
-
-func main() {
-	h := live.NewHandler(templrenderer.WithTemplRenderer(LiveTempl))
-
-	// Set the mount function for this handler.
-	h.MountHandler = mount
-
-	// Server side events.
-
-	// tick event updates the clock every second.
-	h.HandleSelf(tick, func(ctx context.Context, s *live.Socket, d any) (any, error) {
-		// Get our model
-		c := newClock(s)
-		// Update the time.
-		c.Time = d.(time.Time)
-		// Send ourselves another tick in a second.
-		go func(sock *live.Socket) {
-			time.Sleep(1 * time.Second)
-			sock.Self(ctx, tick, time.Now())
-		}(s)
-		return c, nil
-	})
-
-	// Run the server.
-	http.Handle("/", live.NewHttpHandler(context.Background(), h))
-	http.Handle("/live.js", live.Javascript{})
-	http.Handle("/auto.js.map", live.JavascriptMap{})
-	slog.Info("server", "link", "http://localhost:8080")
-	http.ListenAndServe(":8080", nil)
 }
 
 var _ = templruntime.GeneratedTemplate

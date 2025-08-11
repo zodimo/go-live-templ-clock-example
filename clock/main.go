@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/a-h/templ"
 	"github.com/zodimo/go-live-templ-clock-example/pkg/templrenderer"
 
 	"github.com/jfyne/live"
@@ -49,35 +50,6 @@ func mount(ctx context.Context, s *live.Socket) (any, error) {
 	return c, nil
 }
 
-templ PageView(state PageState) {
-<!doctype html>
-<html>
-    <head>
-        <title>{ state.Clock.FormattedTime() }</title>
-        <meta name="color-scheme" content="light dark">
-        <link
-          rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.classless.min.css"
-        >
-        <style>
-            body {
-                border-top: 5px solid red;
-                margin: 0;
-                padding: 1rem;
-            }
-            body.live-connected {
-                border-top: none;
-            }
-        </style>
-    </head>
-    <body>
-        @ClockView(state.Clock)
-        <!-- This is embedded in the binary and enables live to work -->
-        <script type="text/javascript" src="/live.js"></script>
-    </body>
-</html>
-
-}
 type PageState struct {
 	Clock *clock
 }
