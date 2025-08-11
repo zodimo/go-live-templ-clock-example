@@ -1,0 +1,53 @@
+package main
+
+import "github.com/jfyne/live/page"
+
+templ PageView(state *PageState,cmp *page.Component) {
+<!doctype html>
+<html>
+    <head>
+        <title>{ state.Title }</title>
+        <meta name="color-scheme" content="light dark">
+        <style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+                border-top: 5px solid red;
+                margin: 0;
+                padding: 1rem;
+                
+            }
+            body.live-connected {
+                border-top: none;
+            }
+
+        </style>
+    </head>
+    <body>
+       <h1>World Clocks</h1>
+        <form 
+        id="tz-form"
+        live-change={ cmp.Event(validateTZ) }
+        live-submit={ cmp.Event(addTime) }
+        >
+        <div>
+            <p>Try Europe/London or America/New_York</p>
+            <input type="text" name="tz" />
+            <button type="submit">Submit</button>
+            if state.ValidationError != "" {
+                <span>{ state.ValidationError }</span>
+            }
+
+        </div>
+        </form>
+
+        <div>
+            for _, clock := range state.Clocks {
+                 @ClockView(ClockFromComponent(clock))
+            }
+        </div>
+        
+        <script type="text/javascript" src="/live.js"></script>
+    </body>
+</html>
+
+}

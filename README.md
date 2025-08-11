@@ -14,7 +14,12 @@ go mod tidy
 go tool templ generate
 ```
 
-# Run example
+# Run clock example
 ```bash
 go run ./clock
+```
+
+# Runc clocks example (components)
+```bash
+go run ./clocks
 ```
